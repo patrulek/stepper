@@ -1,0 +1,38 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  default:
+    desc: lint, build and test
+    cmds:
+     - task: lint
+     - task: build
+     - task: test
+    silent: true
+
+  lint:
+    desc: runs golangci-lint linter
+    cmds:
+      - golangci-lint run ./...
+    silent: true
+
+  build:
+    desc: build project
+    env:
+      CGO_ENABLED: 0
+    cmds:
+      - go build .
+    silent: true
+
+  test:
+    desc: run unit tests
+    env:
+      CGO_ENABLED: 1
+    cmds:
+      - go test -race -timeout 120s -count=1 -coverprofile=/tmp/coverage.out {{catLines .GO_PACKAGES}}
+    vars:
+      GO_PACKAGES:
+        sh: go list ./...
+    silent: true
+    
